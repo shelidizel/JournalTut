@@ -1,0 +1,89 @@
+﻿@model IEnumerable<JournalClient.Models.Journal>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.JournalNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JournalDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Supplier)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.POCurrency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExchangeRate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DiscountPercentage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuotationNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuotationDate)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Remarks)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.JournalNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.JournalDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Supplier.SupplierName)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.POCurrency.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExchangeRate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DiscountPercentage)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QuotationNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QuotationDate)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Remarks)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.JournalID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.JournalID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.JournalID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
