@@ -1,7 +1,7 @@
 ﻿@model JournalClient.Models.Journal
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Edit";
 }
 
 
@@ -9,12 +9,12 @@
 <div class="col-11 mx-auto p-0">
     <div class="card">
         <div class="card-header bg-success text-uppercase text-white text-center" style="height:40px;">
-            <h5>Create Journal</h5>
+            <h5>Edit Journal</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-12">
-                    <form asp-action="Create" id="MyForm">
+                    <form asp-action="Edit" id="MyForm">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                         <div class="row">
@@ -140,7 +140,7 @@
                                                 <input asp-for="@Model.JournalBSs[i].PrcInBaseCurr" type="number" class="form-control" />
                                                 <span asp-validation-for="@Model.JournalBSs[i].PrcInBaseCurr" class="text-danger"></span>
                                             </td>
-                                           
+                                            
                                             <td style="width : 60px;">
                                                 <button id="btnremove-@i" type="button" class="btn btn-danger btn-sm visible" onclick="DeleteItem(this, 'JournalBSTable')">
                                                     Delete
@@ -221,7 +221,7 @@
                         </div>
 
                         <div class="form-group">
-                            <input type="submit" value="Create" class="btn btn-primary" />
+                            <input type="submit" value="Edit" class="btn btn-primary" />
                         </div>
                     </form>
                 </div>

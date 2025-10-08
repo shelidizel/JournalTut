@@ -2,6 +2,7 @@
 using JournalAPI.DTO;
 using JournalAPI.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -23,7 +24,11 @@ namespace JournalAPI.Controllers
         [HttpGet("~/api/journal")]
         public ActionResult<List<Journal>> Get()
         {
-            List<Journal> journals = _dbContext.Journals.ToList();
+            List<Journal> journals = _dbContext.Journals
+                .Include(s => s.Supplier)
+                .Include(c => c.Currency)
+                .Include(c => c.POCurrency)
+                .ToList();
             return journals;
         }
 
@@ -31,7 +36,13 @@ namespace JournalAPI.Controllers
         [HttpGet("~/api/Journal/{id}")]
         public ActionResult<Journal> Get(int id)
         {
-            var journal = _dbContext.Journals.Find(id);
+            var journal = _dbContext.Journals
+                .Include(s => s.Supplier)
+                .Include(c => c.Currency)
+                .Include(c => c.POCurrency)
+                .Include(c => c.JournalBSs)
+                .Include(c => c.JournalPLs)
+                .FirstOrDefault(j => j.JournalID == id);
 
             if (journal == null) 
             {
@@ -108,15 +119,92 @@ namespace JournalAPI.Controllers
         }
 
         // PUT api/<JournalController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("~/api/Journal/{id}")]
+        public ActionResult<Journal> Put(int id, [FromBody] JournalCreateNestedDto journalDTO)
         {
+            List<JournalPL> journalPLs = new List<JournalPL>();
+
+            foreach (JournalPLCreateDto item in journalDTO.JournalPLs)
+            {
+
+                JournalPL journalPL = new JournalPL
+                {
+                    AccountId = item.AccountId,
+                    Amount = item.Amount,
+                    Description = item.Description,
+                    UnitID = item.UnitID,
+                    StartDate = item.StartDate,
+                    Isstart = item.Isstart,
+                };
+
+                journalPLs.Add(journalPL);
+            }
+
+            List<JournalBS> journalBSs = new List<JournalBS>();
+
+            foreach (JournalBSCreateDto item in journalDTO.JournalBSs)
+            {
+
+                JournalBS journalBS = new JournalBS
+                {
+                    ProductCode = item.ProductCode,
+                    Quantity = item.Quantity,
+                    Fob = item.Fob,
+                    PrcInBaseCurr = item.PrcInBaseCurr,
+                };
+
+                journalBSs.Add(journalBS);
+            }
+
+            Journal journal = new Journal
+            {
+                JournalID = id,
+                JournalNumber = journalDTO.JournalNumber,
+                JournalDate = (DateTime)journalDTO.JournalDate,
+                SupplierID = journalDTO.SupplierID,
+                BaseCurrencyId = journalDTO.BaseCurrencyId,
+                PoCurrencyId = journalDTO.PoCurrencyId,
+                ExchangeRate = journalDTO.ExchangeRate,
+                DiscountPercentage = journalDTO.DiscountPercentage,
+                QuotationNumber = journalDTO.QuotationNumber,
+                QuotationDate = journalDTO.QuotationDate,
+                PaymentTerms = journalDTO.PaymentTerms,
+                Remarks = journalDTO.Remarks,
+                JournalBSs = journalBSs,
+                JournalPLs = journalPLs,
+            };
+
+            _dbContext.Journals.Attach(journal);
+            _dbContext.Entry(journal).State = EntityState.Modified;
+            _dbContext.SaveChanges();
+            return CreatedAtAction(
+                nameof(Put),
+                new { id = journal.JournalID },
+                journal
+             );
         }
 
         // DELETE api/<JournalController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("~/api/journal/{id}")]
+        public ActionResult<Journal> Delete(int id)
         {
+            
+            Journal? journal = _dbContext.Journals.Find( id );
+            if (journal == null) return NotFound();
+            Debug.WriteLine("======================");
+            Debug.WriteLine(journal.JournalID);
+            _dbContext.Journals.Attach(journal);
+            _dbContext.Journals.Remove(journal);
+            _dbContext.SaveChanges();
+
+            return CreatedAtAction(
+                nameof(Delete),
+                new { id = journal.JournalID },
+                journal
+             );
         }
+
+
+
     }
 }

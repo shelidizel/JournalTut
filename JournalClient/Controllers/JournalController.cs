@@ -64,6 +64,80 @@ namespace JournalClient.Controllers
         // GET: JournalController/Details/5
         public async Task<ActionResult> Details(int id)
         {
+
+            ViewBag.ProductList = null;
+            ViewBag.SupplierList = null;
+            ViewBag.CurrencyList = null;
+            ViewBag.AccountList = null;
+
+            var productsActionResult = await GetProducts();
+
+
+            if (productsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okResult)
+            {
+
+                if (okResult.Value is List<Product> products)
+                {
+                    if (products.Any())
+                    {
+                        ViewBag.ProductList = BuildSelectList(
+                            products,
+                            p => p.Code,
+                            p => p.Name
+                            );
+                    }
+                }
+            }
+
+            var suppliersActionResult = await GetSuppliers();
+            if (suppliersActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okRes)
+            {
+                if (okRes.Value is List<Supplier> suppliers)
+                {
+                    if (suppliers.Any())
+                    {
+                        ViewBag.SupplierList = BuildSelectList(
+                            suppliers,
+                            p => p.SupplierID,
+                            p => p.SupplierName
+                            );
+                    }
+                }
+            }
+
+            var currenciesActionResult = await GetCurrencies();
+            if (currenciesActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okRe)
+            {
+                if (okRe.Value is List<Currency> currencies)
+                {
+                    if (currencies.Any())
+                    {
+                        ViewBag.CurrencyList = BuildSelectList(
+                            currencies,
+                            p => p.Id,
+                            p => p.Name
+                            );
+                    }
+                }
+            }
+
+            var accountsActionResult = await GetAccounts();
+            if (accountsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult accResult)
+            {
+                if (accResult.Value is List<Account> accounts)
+                {
+                    if (accounts.Any())
+                    {
+                        ViewBag.AccountList = BuildSelectList(
+                            accounts,
+                            p => p.AccountID,
+                            p => p.AccountName
+                            );
+                    }
+                }
+            }
+
+
             var client = _httpClientFactory.CreateClient();
 
             var response = await client.GetAsync("https://localhost:7146/api/journal/"+id.ToString());
@@ -119,9 +193,7 @@ namespace JournalClient.Controllers
 
             if (productsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okResult)
             {
-                //Debug.WriteLine("==================");
-                //Debug.WriteLine(productsActionResult.Result);
-                //Debug.WriteLine(productsActionResult.Value);
+               
                 if (okResult.Value is List<Product> products)
                 {
                     if (products.Any())
@@ -280,45 +352,346 @@ namespace JournalClient.Controllers
         }
 
         // GET: JournalController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
-            return View();
+            var client = _httpClientFactory.CreateClient();
+
+            var response = await client.GetAsync("https://localhost:7146/api/journal/" + id.ToString());
+
+            Journal? item = null;
+
+
+            try
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+
+                    Journal journal = JsonConvert.DeserializeObject<Journal>(content);
+
+                    if (journal != null)
+                    {
+
+                        item = journal;
+
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.ProductList = null;
+            ViewBag.SupplierList = null;
+            ViewBag.CurrencyList = null;
+            ViewBag.AccountList = null;
+
+            var productsActionResult = await GetProducts();
+
+
+            if (productsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okResult)
+            {
+
+                if (okResult.Value is List<Product> products)
+                {
+                    if (products.Any())
+                    {
+                        ViewBag.ProductList = BuildSelectList(
+                            products,
+                            p => p.Code,
+                            p => p.Name
+                            );
+                    }
+                }
+            }
+
+            var suppliersActionResult = await GetSuppliers();
+            if (suppliersActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okRes)
+            {
+                if (okRes.Value is List<Supplier> suppliers)
+                {
+                    if (suppliers.Any())
+                    {
+                        ViewBag.SupplierList = BuildSelectList(
+                            suppliers,
+                            p => p.SupplierID,
+                            p => p.SupplierName
+                            );
+                    }
+                }
+            }
+
+            var currenciesActionResult = await GetCurrencies();
+            if (currenciesActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okRe)
+            {
+                if (okRe.Value is List<Currency> currencies)
+                {
+                    if (currencies.Any())
+                    {
+                        ViewBag.CurrencyList = BuildSelectList(
+                            currencies,
+                            p => p.Id,
+                            p => p.Name
+                            );
+                    }
+                }
+            }
+
+            var accountsActionResult = await GetAccounts();
+            if (accountsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult accResult)
+            {
+                if (accResult.Value is List<Account> accounts)
+                {
+                    if (accounts.Any())
+                    {
+                        ViewBag.AccountList = BuildSelectList(
+                            accounts,
+                            p => p.AccountID,
+                            p => p.AccountName
+                            );
+                    }
+                }
+            }
+
+
+            return View(item);
         }
 
         // POST: JournalController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<ActionResult> Edit(int id, Journal journal)
         {
+
+            var client = _httpClientFactory.CreateClient();
+
+            List<JournalPLDto> journalPLDtos = new List<JournalPLDto>();
+
+            foreach (var item in journal.JournalPLs)
+            {
+                JournalPLDto journalPLDto = new JournalPLDto
+                {
+                    AccountId = item.AccountId,
+                    Description = item.Description,
+                    UnitID = item.UnitID,
+                    StartDate = item.StartDate,
+                    Isstart = item.Isstart,
+                    Amount = item.Amount,
+                };
+                journalPLDtos.Add(journalPLDto);
+            }
+
+            List<JournalBSDto> journalBSDtos = new List<JournalBSDto>();
+
+            foreach (var item in journal.JournalBSs)
+            {
+                JournalBSDto journalBSDto = new JournalBSDto
+                {
+                    ProductCode = item.ProductCode,
+                    Quantity = item.Quantity,
+                    Fob = item.Fob,
+                    PrcInBaseCurr = item.PrcInBaseCurr,
+                };
+                journalBSDtos.Add(journalBSDto);
+            }
+
+            JournalDto journalDto = new JournalDto
+            {
+                JournalNumber = journal.JournalNumber,
+                JournalDate = journal.JournalDate,
+                SupplierID = journal.SupplierID,
+                BaseCurrencyId = journal.BaseCurrencyId,
+                PoCurrencyId = journal.PoCurrencyId,
+                ExchangeRate = journal.ExchangeRate,
+                DiscountPercentage = journal.DiscountPercentage,
+                QuotationNumber = journal.QuotationNumber,
+                QuotationDate = journal.QuotationDate,
+                PaymentTerms = journal.PaymentTerms,
+                Remarks = journal.Remarks,
+                JournalBSs = journalBSDtos,
+                JournalPLs = journalPLDtos,
+
+            };
+
+            var jsonContent = System.Text.Json.JsonSerializer.Serialize(journalDto);
+
+            HttpContent content = new StringContent(
+                jsonContent,
+                System.Text.Encoding.UTF8,
+                "application/json" // Crucial: sets the Content-Type header
+             );
+
+            var response = await client.PutAsync("https://localhost:7146/api/journal/" + id.ToString(), content);
+
+            string errorContent = await response.Content.ReadAsStringAsync();
+
+            
+
             try
             {
-                return RedirectToAction(nameof(Index));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+
+                    ModelState.AddModelError(string.Empty, "API request failed with status code: " + response.StatusCode);
+                    return View(journal);
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+
+                ModelState.AddModelError(string.Empty, "An error occurred: " + ex.Message);
+                return View(journal);
             }
         }
 
         // GET: JournalController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            return View();
+            var client = _httpClientFactory.CreateClient();
+
+            var response = await client.GetAsync("https://localhost:7146/api/journal/" + id.ToString());
+
+            Journal? item = null;
+
+
+            try
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+
+                    Journal journal = JsonConvert.DeserializeObject<Journal>(content);
+
+                    if (journal != null)
+                    {
+
+                        item = journal;
+
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.ProductList = null;
+            ViewBag.SupplierList = null;
+            ViewBag.CurrencyList = null;
+            ViewBag.AccountList = null;
+
+            var productsActionResult = await GetProducts();
+
+
+            if (productsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okResult)
+            {
+
+                if (okResult.Value is List<Product> products)
+                {
+                    if (products.Any())
+                    {
+                        ViewBag.ProductList = BuildSelectList(
+                            products,
+                            p => p.Code,
+                            p => p.Name
+                            );
+                    }
+                }
+            }
+
+            var suppliersActionResult = await GetSuppliers();
+            if (suppliersActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okRes)
+            {
+                if (okRes.Value is List<Supplier> suppliers)
+                {
+                    if (suppliers.Any())
+                    {
+                        ViewBag.SupplierList = BuildSelectList(
+                            suppliers,
+                            p => p.SupplierID,
+                            p => p.SupplierName
+                            );
+                    }
+                }
+            }
+
+            var currenciesActionResult = await GetCurrencies();
+            if (currenciesActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult okRe)
+            {
+                if (okRe.Value is List<Currency> currencies)
+                {
+                    if (currencies.Any())
+                    {
+                        ViewBag.CurrencyList = BuildSelectList(
+                            currencies,
+                            p => p.Id,
+                            p => p.Name
+                            );
+                    }
+                }
+            }
+
+            var accountsActionResult = await GetAccounts();
+            if (accountsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult accResult)
+            {
+                if (accResult.Value is List<Account> accounts)
+                {
+                    if (accounts.Any())
+                    {
+                        ViewBag.AccountList = BuildSelectList(
+                            accounts,
+                            p => p.AccountID,
+                            p => p.AccountName
+                            );
+                    }
+                }
+            }
+
+
+            return View(item);
         }
 
-        // POST: JournalController/Delete/5
+        // POST: JournalController/DeleteConfirmed/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> DeleteConfirmed(int JournalID)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var client = _httpClientFactory.CreateClient();
+                Debug.WriteLine("==============");
+                Debug.WriteLine(JournalID);
+
+                var response = await client.DeleteAsync("https://localhost:7146/api/journal/" + JournalID.ToString());
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Debug.WriteLine("===========================");
+                    return RedirectToAction(nameof(Index));
+                }
             }
             catch
             {
-                return View();
+                return RedirectToAction("Delete", new { id = JournalID});
             }
+
+            return RedirectToAction("Delete", new { id = JournalID });
         }
 
         private async Task<ActionResult<List<Product>>> GetProducts()
