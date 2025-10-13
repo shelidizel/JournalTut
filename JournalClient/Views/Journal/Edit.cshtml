@@ -88,8 +88,8 @@
                         </div>
 
                         <div class="tab">
-                            <button class="tablinks" onclick="openTab(this, 'JournalBS')">Journal BS</button>
-                            <button class="tablinks" onclick="openTab(this, 'JournalPL')">Journal PL</button>
+                            <button type="button" class="tablinks" onclick="openTab(this, 'JournalBS')">Journal BS</button>
+                            <button type="button" class="tablinks" onclick="openTab(this, 'JournalPL')">Journal PL</button>
                         </div>
 
 
@@ -113,6 +113,10 @@
                                         <th>
                                             Unit
                                         </th>
+                                        <th>
+                                            Amount
+                                        </th>
+                                       
                                         <th style="width: 60px">
                                             <button id="buttonAddDetailRow" type="button" class="btn btn btn-secondary visible" onclick="AddItem(this, 'JournalBSTable')">
                                                 Add
@@ -140,6 +144,17 @@
                                                 <input asp-for="@Model.JournalBSs[i].PrcInBaseCurr" type="number" class="form-control" />
                                                 <span asp-validation-for="@Model.JournalBSs[i].PrcInBaseCurr" class="text-danger"></span>
                                             </td>
+                                            <div class="col-md-4 mb-3">
+                                                <label asp-for="@Model.JournalBSs[i].UnitName" class="form-label"></label>
+                                                <select asp-for="@Model.JournalBSs[i].UnitName" class="form-control" asp-items="ViewBag.UnitList"></select>
+                                                <span asp-validation-for="@Model.JournalBSs[i].UnitName" class="text-danger"></span>
+
+                                            </div>
+                                            <td>
+                                                <input  type="number" class="form-control" />
+                                                <span class="text-danger"></span>
+                                            </td>
+                                            
                                             
                                             <td style="width : 60px;">
                                                 <button id="btnremove-@i" type="button" class="btn btn-danger btn-sm visible" onclick="DeleteItem(this, 'JournalBSTable')">
@@ -325,10 +340,7 @@
               $form.validate($form.data("unobtrusiveValidation").options)
           }
 
-          document.getElementById('JournalBSTable').addEventListener('change', function(event) {
-              console.log("stuff changed over here")
-              console.log(event.target.value)
-          })
+         
 
     </script>
 }

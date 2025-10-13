@@ -309,7 +309,12 @@
                   alert("This row cannot be deleted");
                   return
               }
-              $(btn).closest('tr').remove();
+
+              var btnIdx = btn.id.replaceAll('btnremove-', '');
+              var idOfQuantity = btnIdx + "__Quantity";
+              var txtQuantity  = document.querySelector("[id$='" + idOfQuantity + "']");
+              txtQuantity.value=0;
+              $(btn).closest('tr').hide();
           }
 
           function RebindValidators () {

@@ -122,66 +122,56 @@ namespace JournalAPI.Controllers
         [HttpPut("~/api/Journal/{id}")]
         public ActionResult<Journal> Put(int id, [FromBody] JournalCreateNestedDto journalDTO)
         {
-            List<JournalPL> journalPLs = new List<JournalPL>();
+           
+            Journal journal = _dbContext.Journals
+                .Include(j => j.JournalPLs)
+                .Include(j => j.JournalBSs)
+                .FirstOrDefault(j => j.JournalID == id);
 
-            foreach (JournalPLCreateDto item in journalDTO.JournalPLs)
+            if (journal == null) return NotFound();
+
+
+            journal.JournalBSs.Clear();
+            journal.JournalPLs.Clear();
+
+          
+            journal.JournalNumber = journalDTO.JournalNumber;
+            journal.JournalDate = (DateTime)journalDTO.JournalDate;
+            journal.SupplierID = journalDTO.SupplierID;
+            journal.BaseCurrencyId = journalDTO.BaseCurrencyId;
+            journal.PoCurrencyId = journalDTO.PoCurrencyId;
+            journal.ExchangeRate = journalDTO.ExchangeRate;
+            journal.DiscountPercentage = journalDTO.DiscountPercentage;
+            journal.QuotationNumber = journalDTO.QuotationNumber;
+            journal.QuotationDate = journalDTO.QuotationDate;
+            journal.PaymentTerms = journalDTO.PaymentTerms;
+            journal.Remarks = journalDTO.Remarks;
+
+            // 4. Create NEW child entities
+            List<JournalPL> journalPLs = journalDTO.JournalPLs.Select(item => new JournalPL
             {
+                AccountId = item.AccountId,
+                Amount = item.Amount,
+                Description = item.Description,
+                UnitID = item.UnitID,
+                StartDate = item.StartDate,
+                Isstart = item.Isstart
+            }).ToList();
 
-                JournalPL journalPL = new JournalPL
-                {
-                    AccountId = item.AccountId,
-                    Amount = item.Amount,
-                    Description = item.Description,
-                    UnitID = item.UnitID,
-                    StartDate = item.StartDate,
-                    Isstart = item.Isstart,
-                };
-
-                journalPLs.Add(journalPL);
-            }
-
-            List<JournalBS> journalBSs = new List<JournalBS>();
-
-            foreach (JournalBSCreateDto item in journalDTO.JournalBSs)
+            List<JournalBS> journalBSs = journalDTO.JournalBSs.Select(item => new JournalBS
             {
+                ProductCode = item.ProductCode,
+                Quantity = item.Quantity,
+                Fob = item.Fob,
+                PrcInBaseCurr = item.PrcInBaseCurr,
+            }).ToList();
 
-                JournalBS journalBS = new JournalBS
-                {
-                    ProductCode = item.ProductCode,
-                    Quantity = item.Quantity,
-                    Fob = item.Fob,
-                    PrcInBaseCurr = item.PrcInBaseCurr,
-                };
+            journal.JournalPLs = journalPLs;
+            journal.JournalBSs = journalBSs;
 
-                journalBSs.Add(journalBS);
-            }
-
-            Journal journal = new Journal
-            {
-                JournalID = id,
-                JournalNumber = journalDTO.JournalNumber,
-                JournalDate = (DateTime)journalDTO.JournalDate,
-                SupplierID = journalDTO.SupplierID,
-                BaseCurrencyId = journalDTO.BaseCurrencyId,
-                PoCurrencyId = journalDTO.PoCurrencyId,
-                ExchangeRate = journalDTO.ExchangeRate,
-                DiscountPercentage = journalDTO.DiscountPercentage,
-                QuotationNumber = journalDTO.QuotationNumber,
-                QuotationDate = journalDTO.QuotationDate,
-                PaymentTerms = journalDTO.PaymentTerms,
-                Remarks = journalDTO.Remarks,
-                JournalBSs = journalBSs,
-                JournalPLs = journalPLs,
-            };
-
-            _dbContext.Journals.Attach(journal);
-            _dbContext.Entry(journal).State = EntityState.Modified;
             _dbContext.SaveChanges();
-            return CreatedAtAction(
-                nameof(Put),
-                new { id = journal.JournalID },
-                journal
-             );
+
+            return Ok(journal); 
         }
 
         // DELETE api/<JournalController>/5

@@ -267,6 +267,8 @@ namespace JournalClient.Controllers
 
             var client = _httpClientFactory.CreateClient();
 
+            journal.JournalBSs.RemoveAll(a => a.Quantity == 0);
+
             List<JournalPLDto> journalPLDtos = new List<JournalPLDto>();    
 
             foreach (var item in journal.JournalPLs)
@@ -391,6 +393,7 @@ namespace JournalClient.Controllers
             ViewBag.SupplierList = null;
             ViewBag.CurrencyList = null;
             ViewBag.AccountList = null;
+            ViewBag.UnitList = null;
 
             var productsActionResult = await GetProducts();
 
@@ -459,6 +462,22 @@ namespace JournalClient.Controllers
                 }
             }
 
+            var unitsActionResult = await GetAccounts();
+            if (unitsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult unitResult)
+            {
+                if (unitResult.Value is List<Unit> units)
+                {
+                    if (units.Any())
+                    {
+                        ViewBag.UnitList = BuildSelectList(
+                            units,
+                            p => p.Code,
+                            p => p.Name
+                            );
+                    }
+                }
+            }
+
 
             return View(item);
         }
@@ -470,6 +489,8 @@ namespace JournalClient.Controllers
         {
 
             var client = _httpClientFactory.CreateClient();
+
+            journal.JournalBSs.RemoveAll(a => a.Quantity == 0);
 
             List<JournalPLDto> journalPLDtos = new List<JournalPLDto>();
 
@@ -675,14 +696,11 @@ namespace JournalClient.Controllers
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                Debug.WriteLine("==============");
-                Debug.WriteLine(JournalID);
 
                 var response = await client.DeleteAsync("https://localhost:7146/api/journal/" + JournalID.ToString());
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Debug.WriteLine("===========================");
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -742,6 +760,59 @@ namespace JournalClient.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, "An unexpected error occurred."); 
+            }
+
+            return StatusCode(500, "An unexpected error occurred.");
+        }
+
+        private async Task<ActionResult<List<Unit>>> GetUnits()
+        {
+
+            var client = _httpClientFactory.CreateClient();
+
+            try
+            {
+                var response = await client.GetAsync("https://localhost:7146/api/units");
+
+
+
+
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+
+                    List<Unit> units = JsonConvert.DeserializeObject<List<Unit>>(content);
+
+                    if (units != null)
+                    {
+
+                        return Ok(units);
+
+                    }
+                }
+                else
+                {
+
+                    return NotFound("No products were found or deserialization failed.");
+                }
+
+
+
+
+            }
+
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(503, "Could not connect to the product service.");
+            }
+            catch (JsonException ex)
+            {
+                return StatusCode(500, "Error processing product data.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occurred.");
             }
 
             return StatusCode(500, "An unexpected error occurred.");
