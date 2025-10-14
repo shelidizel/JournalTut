@@ -32,7 +32,7 @@ namespace JournalAPI.Controllers
 
         // GET api/<ProductController>/5
         [HttpGet("~/api/product/{id}")]
-        public ActionResult<Product> Get(int id)
+        public ActionResult<Product> Get(string id)
         {
             var product = _dbContext.Products.Find(id);
             if ( product == null) return NotFound("Product not found");

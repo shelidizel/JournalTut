@@ -187,6 +187,7 @@ namespace JournalClient.Controllers
             ViewBag.SupplierList = null;
             ViewBag.CurrencyList = null;
             ViewBag.AccountList = null;
+            ViewBag.UnitList = null;
 
             var productsActionResult = await GetProducts();
             
@@ -250,6 +251,22 @@ namespace JournalClient.Controllers
                             accounts,
                             p => p.AccountID,
                             p => p.AccountName
+                            );
+                    }
+                }
+            }
+
+            var unitsActionResult = await GetUnits();
+            if (unitsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult unitResult)
+            {
+                if (unitResult.Value is List<Unit> units)
+                {
+                    if (units.Any())
+                    {
+                        ViewBag.UnitList = BuildSelectList(
+                            units,
+                            p => p.Id,
+                            p => p.Name
                             );
                     }
                 }
@@ -462,7 +479,7 @@ namespace JournalClient.Controllers
                 }
             }
 
-            var unitsActionResult = await GetAccounts();
+            var unitsActionResult = await GetUnits();
             if (unitsActionResult.Result is Microsoft.AspNetCore.Mvc.OkObjectResult unitResult)
             {
                 if (unitResult.Value is List<Unit> units)
@@ -471,7 +488,7 @@ namespace JournalClient.Controllers
                     {
                         ViewBag.UnitList = BuildSelectList(
                             units,
-                            p => p.Code,
+                            p => p.Id,
                             p => p.Name
                             );
                     }
@@ -772,7 +789,7 @@ namespace JournalClient.Controllers
 
             try
             {
-                var response = await client.GetAsync("https://localhost:7146/api/units");
+                var response = await client.GetAsync("https://localhost:7146/api/unit");
 
 
 

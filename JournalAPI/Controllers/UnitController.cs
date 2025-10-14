@@ -1,5 +1,6 @@
 ﻿using JournalAPI.Data;
 using JournalAPI.Model;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
@@ -31,6 +32,7 @@ namespace JournalAPI.Controllers
         }
 
         // GET api/<UnitController>/5
+        [EnableCors("AllowAllOrigins")]
         [HttpGet("~/api/unit/{id}")]
         public ActionResult<Unit> Get(int id)
         {

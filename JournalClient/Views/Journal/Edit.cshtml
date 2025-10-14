@@ -129,11 +129,11 @@
                                     {
                                         <tr>
                                             <td>
-                                                @* <input asp-for="@Model.PoDetails[i].ProductCode" class="form-control"/> *@
-                                                <select asp-for="@Model.JournalBSs[i].ProductCode" asp-items="ViewBag.ProductList" class="form-control"></select>
+
+                                                <select asp-for="@Model.JournalBSs[i].ProductCode" asp-items="ViewBag.ProductList" class="form-control product-code-select"></select>
                                             </td>
                                             <td>
-                                                <input asp-for="@Model.JournalBSs[i].Quantity" type="number" class="form-control" />
+                                                <input asp-for="@Model.JournalBSs[i].Quantity" type="number" class="form-control product-quantity" />
                                                 <span asp-validation-for="@Model.JournalBSs[i].Quantity" class="text-danger"></span>
                                             </td>
                                             <td>
@@ -141,17 +141,17 @@
                                                 <span asp-validation-for="@Model.JournalBSs[i].Fob" class="text-danger"></span>
                                             </td>
                                             <td>
-                                                <input asp-for="@Model.JournalBSs[i].PrcInBaseCurr" type="number" class="form-control" />
+                                                <input asp-for="@Model.JournalBSs[i].PrcInBaseCurr" type="number" class="form-control unit-price" />
                                                 <span asp-validation-for="@Model.JournalBSs[i].PrcInBaseCurr" class="text-danger"></span>
                                             </td>
-                                            <div class="col-md-4 mb-3">
-                                                <label asp-for="@Model.JournalBSs[i].UnitName" class="form-label"></label>
-                                                <select asp-for="@Model.JournalBSs[i].UnitName" class="form-control" asp-items="ViewBag.UnitList"></select>
+                                            <td >
+                                               
+                                                <select asp-for="@Model.JournalBSs[i].UnitName" class="form-control unit-name" asp-items="ViewBag.UnitList"></select>
                                                 <span asp-validation-for="@Model.JournalBSs[i].UnitName" class="text-danger"></span>
 
-                                            </div>
+                                            </td>
                                             <td>
-                                                <input  type="number" class="form-control" />
+                                                <input  type="number" class="form-control product-amount" />
                                                 <span class="text-danger"></span>
                                             </td>
                                             
@@ -254,6 +254,75 @@
     }
     <script>
 
+                // 1. Target the specific table element
+        const dynamicTable = document.getElementById('JournalBSTable');
+
+        if (dynamicTable) {
+           
+            const itemRows = dynamicTable.querySelectorAll('tr');
+
+            itemRows.forEach(row => {
+                const priceInput = row.querySelector('.unit-price');
+                const quantityInput = row.querySelector('.product-quantity');
+                const amountDisplay = row.querySelector('.product-amount');
+
+                // Define the calculation function (same as before)
+                function calculateRowAmount() {
+                    const price = +priceInput.value || 0;
+                    const quantity = +quantityInput.value || 0;
+                    const amount = price * quantity;
+
+                    if (amountDisplay) {
+                        // Update based on element type (input or display element)
+                        if (amountDisplay.tagName === 'INPUT') {
+                            amountDisplay.value = amount.toFixed(2);
+                        } else {
+                            amountDisplay.textContent = amount.toFixed(2);
+                        }
+                    }
+                }
+
+                // Attach listeners
+                if (priceInput) {
+                    priceInput.addEventListener('input', calculateRowAmount);
+                }
+
+                if (quantityInput) {
+                    quantityInput.addEventListener('input', calculateRowAmount);
+                }
+            });
+        }
+
+
+
+         document.addEventListener('DOMContentLoaded', function() {
+
+         const selectElements = document.querySelectorAll('.product-code-select');
+
+
+        selectElements.forEach(selectElement => {
+         
+
+            const selectedValue = selectElement.value;
+            const selectId = selectElement.id;
+
+            console.log(`Select box ID: ${selectId} changed to: ${selectedValue}`);
+
+            const row = selectElement.closest('tr');
+            if (row) {
+               updateProductDetails(selectedValue, row);
+
+               const product_amount = row.querySelector('.product-amount');
+               const unit_price = row.querySelector('.unit-price');
+               const quantity = row.querySelector('.product-quantity');
+
+               product_amount.value = unit_price.value * quantity.value;
+            }
+         
+          });
+           
+        });
+
           var journalBS = document.getElementById("JournalBS");
           journalBS.style.display = "block";
 
@@ -339,6 +408,76 @@
 
               $form.validate($form.data("unobtrusiveValidation").options)
           }
+
+                  
+          const selectElements = document.querySelectorAll('.product-code-select');
+
+        
+        selectElements.forEach(selectElement => {
+          selectElement.addEventListener('change', function() {
+            
+            const selectedValue = this.value;
+            const selectId = this.id; 
+
+            console.log(`Select box ID: ${selectId} changed to: ${selectedValue}`);
+            
+            const row = this.closest('tr');
+            if (row) {
+               updateProductDetails(selectedValue, row);          
+            }
+          });
+        });
+
+         
+        async function updateProductDetails(productCode, rowElement) {
+            if (!productCode) {
+                console.log("No product code selected. Skipping API call.");
+                return;
+            }
+
+            const apiUrl = `https://localhost:7146/api/product/${productCode}`;
+
+            // Optional: Add a visual loading indicator to the row/page
+            // rowElement.classList.add('loading');
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                        
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                
+                const unitPriceInput = rowElement.querySelector('.unit-price');
+                if (unitPriceInput) {
+                     unitPriceInput.value = data.price;
+                }
+
+                const unitSelect = rowElement.querySelector('.unit-name');
+
+                
+
+                if (unitSelect && data.unitId) {
+                   unitSelect.value = data.unitId;
+                   console.log(unitSelect)
+                }
+
+            } catch (error) {
+                console.error('Error making API call:', error);
+                alert('Failed to load product details. Check the console for more info.');
+            } finally {
+                // Optional: Remove the visual loading indicator
+                // rowElement.classList.remove('loading');
+            }
+        }
 
          
 
