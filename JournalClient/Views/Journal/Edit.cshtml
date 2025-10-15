@@ -146,13 +146,13 @@
                                             </td>
                                             <td >
                                                
-                                                <select asp-for="@Model.JournalBSs[i].UnitName" class="form-control unit-name" asp-items="ViewBag.UnitList"></select>
-                                                <span asp-validation-for="@Model.JournalBSs[i].UnitName" class="text-danger"></span>
+                                                <select asp-for="@Model.JournalBSs[i].UnitId" class="form-control unit-name" asp-items="ViewBag.UnitList"></select>
+                                                <span asp-validation-for="@Model.JournalBSs[i].UnitId" class="text-danger"></span>
 
                                             </td>
                                             <td>
-                                                <input  type="number" class="form-control product-amount" />
-                                                <span class="text-danger"></span>
+                                                <input asp-for="@Model.JournalBSs[i].Amount" type="number" class="form-control product-amount" />
+                                                <span asp-validation-for="@Model.JournalBSs[i].Amount" class="text-danger"></span>
                                             </td>
                                             
                                             

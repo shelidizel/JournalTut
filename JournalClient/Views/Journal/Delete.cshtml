@@ -135,6 +135,16 @@
                                                 <input asp-for="@Model.JournalBSs[i].PrcInBaseCurr" type="number" class="form-control" readonly/>
                                                 <span asp-validation-for="@Model.JournalBSs[i].PrcInBaseCurr" class="text-danger"></span>
                                             </td>
+                                            <td>
+
+                                                <select asp-for="@Model.JournalBSs[i].UnitId" class="form-control unit-name" asp-items="ViewBag.UnitList" disabled></select>
+                                                <span asp-validation-for="@Model.JournalBSs[i].UnitId" class="text-danger"></span>
+
+                                            </td>
+                                            <td>
+                                                <input asp-for="@Model.JournalBSs[i].Amount" type="number" class="form-control product-amount" readonly />
+                                                <span asp-validation-for="@Model.JournalBSs[i].Amount" class="text-danger"></span>
+                                            </td>
                                             
                                             
                                         </tr>

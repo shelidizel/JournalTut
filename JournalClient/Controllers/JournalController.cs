@@ -311,6 +311,8 @@ namespace JournalClient.Controllers
                     Quantity = item.Quantity,
                     Fob = item.Fob,
                     PrcInBaseCurr = item.PrcInBaseCurr,
+                    Amount = item.Amount,
+                    UnitId = item.UnitId
                 };
                 journalBSDtos.Add(journalBSDto);
             }
@@ -535,6 +537,8 @@ namespace JournalClient.Controllers
                     Quantity = item.Quantity,
                     Fob = item.Fob,
                     PrcInBaseCurr = item.PrcInBaseCurr,
+                    Amount = item.Amount,
+                    UnitId = item.UnitId,
                 };
                 journalBSDtos.Add(journalBSDto);
             }

@@ -87,6 +87,8 @@ namespace JournalAPI.Controllers
                     Quantity = item.Quantity,
                     Fob = item.Fob,
                     PrcInBaseCurr = item.PrcInBaseCurr,
+                    Amount = item.Amount,
+                    UnitId = (int)item.UnitId
                 };
 
                 journalBSs.Add(journalBS);
@@ -164,6 +166,8 @@ namespace JournalAPI.Controllers
                 Quantity = item.Quantity,
                 Fob = item.Fob,
                 PrcInBaseCurr = item.PrcInBaseCurr,
+                Amount = (int)item.Amount,
+                UnitId = (int)item.UnitId
             }).ToList();
 
             journal.JournalPLs = journalPLs;

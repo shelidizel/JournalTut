@@ -24,6 +24,13 @@ namespace JournalAPI.DTO
         [Required(ErrorMessage = "Price in Base Currency is required.")]
         [Range(1, 1000, ErrorMessage = "Price in Base Currency should be greater than 0 and lesser than 1000.")]
         public decimal PrcInBaseCurr { get; set; }
+
+        [Required(ErrorMessage = " Unit is required.")]
+        public decimal UnitId { get; set; }
+
+        [Required(ErrorMessage = "Amount is required.")]
+        [Range(1, 1000, ErrorMessage = "Amount should be greater than 0 and lesser than 1000.")]
+        public decimal Amount { get; set; }
     }
 
     /// <summary>

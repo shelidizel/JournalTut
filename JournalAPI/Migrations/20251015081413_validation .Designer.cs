@@ -4,6 +4,7 @@ using JournalAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JournalAPI.Migrations
 {
     [DbContext(typeof(JournalDBContext))]
-    partial class JournalDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251015081413_validation ")]
+    partial class validation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,9 +193,6 @@ namespace JournalAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("Fob")
                         .HasColumnType("smallmoney");
 
@@ -209,16 +209,11 @@ namespace JournalAPI.Migrations
                     b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("UnitId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("JournalID");
 
                     b.HasIndex("ProductCode");
-
-                    b.HasIndex("UnitId");
 
                     b.ToTable("JournalBS");
                 });
@@ -417,15 +412,7 @@ namespace JournalAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("JournalAPI.Model.Unit", "Unit")
-                        .WithMany()
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Product");
-
-                    b.Navigation("Unit");
                 });
 
             modelBuilder.Entity("JournalAPI.Model.JournalPL", b =>

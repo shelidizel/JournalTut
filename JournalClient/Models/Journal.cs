@@ -38,7 +38,7 @@ namespace JournalClient.Models
         [Required]
         [Column(TypeName = "smallmoney")]
         [DisplayFormat(DataFormatString = "{0:0.000}", ApplyFormatInEditMode = true)]
-        [Range(1, 1000000, ErrorMessage = "Should be greater than 0")]
+        [Range(0, 1000000, ErrorMessage = "Should be greater than 0")]
         public decimal ExchangeRate { get; set; }
 
         [Required]

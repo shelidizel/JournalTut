@@ -24,7 +24,14 @@ namespace JournalAPI.DTO
             [Required(ErrorMessage = "Price in Base Currency is required.")]
             [Range(1, 1000, ErrorMessage = "Price in Base Currency should be greater than 0 and lesser than 1000.")]
             public decimal PrcInBaseCurr { get; set; }
-        }
+
+            [Required(ErrorMessage = "Amount is required.")]
+            [Range(0, 1000, ErrorMessage = "Amount should be greater than 0 and lesser than 1000.")]
+            public decimal Amount { get; set; }
+
+            [Required(ErrorMessage = "Unit is required.")]
+            public decimal UnitId { get; set; }
+    }
 
         /// <summary>
         /// DTO for creating a single Profit & Loss (PL) line item.
@@ -77,7 +84,7 @@ namespace JournalAPI.DTO
             public int PoCurrencyId { get; set; }
 
             [Required(ErrorMessage = "Exchange Rate is required.")]
-            [Range(1, 1000000, ErrorMessage = "Exchange Rate should be greater than 0 and lesser than 1,000,000.")]
+            [Range(0, 1000000, ErrorMessage = "Exchange Rate should be greater than 0 and lesser than 1,000,000.")]
             public decimal ExchangeRate { get; set; }
 
             [Required(ErrorMessage = "Discount Percentage is required.")]

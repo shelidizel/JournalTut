@@ -19,8 +19,18 @@ namespace JournalAPI.Model
         public virtual Product Product { get; private set; }
 
         [Required]
+        [ForeignKey("Unit")]
+        public int UnitId { get; set; }
+
+        public virtual Unit Unit { get; private set; }
+
+        [Required]
         [Range(1, 1000, ErrorMessage = "Product quantity should be greater than 0 and lesser than 1000")]
         public decimal Quantity { get; set; }
+
+        [Required]
+        [Range(1, 1000, ErrorMessage = "Amount should be greater than 0 and lesser than 1000")]
+        public decimal Amount { get; set; }
 
 
 
