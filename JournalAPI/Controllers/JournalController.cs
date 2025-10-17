@@ -20,6 +20,8 @@ namespace JournalAPI.Controllers
             _dbContext = context;
         }
 
+        //some totally useless comment
+
         // GET: api/<JournalController>
         [HttpGet("~/api/journal")]
         public ActionResult<List<Journal>> Get()
